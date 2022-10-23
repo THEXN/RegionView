@@ -32,13 +32,13 @@ namespace RegionView
         };
 
         public override string Author
-            => "TBC Developers";
+            => "TBC开发者团队,肝帝熙恩汉化";
 
         public override string Description
-            => "Adds region border view to regions.";
+            => "为地区添加区域边界视图。";
 
         public override string Name
-            => "RegionView";
+            => "区域显示";
 
         public override Version Version
             => new(1, 0);
@@ -53,25 +53,25 @@ namespace RegionView
 
 		public override void Initialize()
 		{
-			Commands.ChatCommands.Add(new Command("regionvision.regionview", CommandView, "regionview", "rv")
-			{
-				AllowServer = false,
-				HelpText = "Shows you the boundary of the specified region"
-			});
+            Commands.ChatCommands.Add(new Command("regionvision.regionview", CommandView, "regionview", "rv")
+            {
+                AllowServer = false,
+                HelpText = "显示指定区域的边界"
+            });
 
-			Commands.ChatCommands.Add(new Command("regionvision.regionview", CommandClear, "regionclear", "rc")
-			{
-				AllowServer = false,
-				HelpDesc = new string[] { "Usage: /rc", "Removes all region borders from your view" }
-			});
+            Commands.ChatCommands.Add(new Command("regionvision.regionview", CommandClear, "regionclear", "rc")
+            {
+                AllowServer = false,
+                HelpDesc = new string[] { "用法: /rc", "从您的视图中移除所有区域显示" }
+            });
 
-			Commands.ChatCommands.Add(new Command("regionvision.regionviewnear", CommandViewNearby, "regionviewnear", "rvn")
-			{
-				AllowServer = false,
-				HelpText = "Turns on or off automatic showing of regions near you"
-			});
+            Commands.ChatCommands.Add(new Command("regionvision.regionviewnear", CommandViewNearby, "regionviewnear", "rvn")
+            {
+                AllowServer = false,
+                HelpText = "开启或关闭自动显示您附近的区域"
+            });
 
-			GetDataHandlers.TileEdit += HandlerList<GetDataHandlers.TileEditEventArgs>.Create(OnTileEdit!, HandlerPriority.High, false);
+            GetDataHandlers.TileEdit += HandlerList<GetDataHandlers.TileEditEventArgs>.Create(OnTileEdit!, HandlerPriority.High, false);
 
 			ServerApi.Hooks.ServerJoin.Register(this, OnPlayerJoin);
 			ServerApi.Hooks.ServerLeave.Register(this, OnPlayerLeave);
@@ -99,8 +99,8 @@ namespace RegionView
 						var region = player.Regions[i];
 						if (region.Name.Equals(args.Region.Name))
 						{
-							player.TSPlayer.SendMessage("Region " + region.Name + " has been deleted.", TextColors[region.Color - 13]);
-							region.Refresh(player.TSPlayer);
+                            player.TSPlayer.SendMessage("区域显示 " + region.Name + " 已被删除。", TextColors[region.Color - 13]);
+                            region.Refresh(player.TSPlayer);
 							player.Regions.RemoveAt(i);
 
 							foreach (var region2 in player.Regions)
@@ -133,8 +133,8 @@ namespace RegionView
 
 			if (args.Parameters.Count < 1)
 			{
-				args.Player.SendErrorMessage("Usage: /regionview <region name>");
-				return;
+                args.Player.SendErrorMessage("用法: /regionview <区域名称>");
+                return;
 			}
 
 			// Find the specified region.
@@ -173,27 +173,27 @@ namespace RegionView
 				{
 					tRegion = matches[0];
 				}
-				else if (matches.Count == 0)
-				{
-					args.Player.SendErrorMessage("No such region exists.");
-					return;
-				}
-				else if (matches.Count > 5)
-				{
-					args.Player.SendErrorMessage("Multiple matching regions were found: {0} and {1} more. Please be more specific.", string.Join(", ", matches.Take(5).Select(r => r.Name)), matches.Count - 5);
-					return;
-				}
-				else if (matches.Count > 1)
-				{
-					args.Player.SendErrorMessage("Multiple matching regions were found: {0}. Please be more specific.", string.Join(", ", matches.Select(r => r.Name)));
-					return;
-				}
-			}
+                else if (matches.Count == 0)
+                {
+                    args.Player.SendErrorMessage("没有找到这样的区域。");
+                    return;
+                }
+                else if (matches.Count > 5)
+                {
+                    args.Player.SendErrorMessage("找到了多个匹配的区域：{0} 等{1}个更多。请更具体一些。", string.Join(", ", matches.Take(5).Select(r => r.Name)), matches.Count - 5);
+                    return;
+                }
+                else if (matches.Count > 1)
+                {
+                    args.Player.SendErrorMessage("找到了多个匹配的区域：{0}。请更具体一些。", string.Join(", ", matches.Select(r => r.Name)));
+                    return;
+                }
+            }
 
-			if (tRegion!.Area.Width < 0 || tRegion.Area.Height < 0)
+            if (tRegion!.Area.Width < 0 || tRegion.Area.Height < 0)
 			{
-				args.Player.SendErrorMessage("Region {0} contains no tiles. (Found dimensions: {1} × {2})\nUse [c/FF8080:/region resize] to fix it.", tRegion.Name, tRegion.Area.Width, tRegion.Area.Height);
-				return;
+                args.Player.SendErrorMessage("区域 {0} 不包含任何图块。 (找到的尺寸: {1} × {2})\n使用 [c/FF8080:/region resize] 来修复它。", tRegion.Name, tRegion.Area.Width, tRegion.Area.Height);
+                return;
 			}
 
 			lock (Players)
@@ -226,47 +226,47 @@ namespace RegionView
 				foreach (var _region in player.Regions.Reverse<Region>())
 					_region.UnsetFakeTiles();
 
-				var message = "You are now viewing " + region.Name + ".";
-				// Show how large the region is if it's large.
-				if (tRegion.Area.Width >= Region.MaximumSize || tRegion.Area.Height >= Region.MaximumSize)
-				{
-					int num; int num2;
-					if (tRegion.Area.Bottom < args.Player.TileY)
-					{
-						num = args.Player.TileY - tRegion.Area.Bottom;
-						message += " Borders are " + num + (num == 1 ? " tile" : " tiles") + " above you";
-					}
-					else if (tRegion.Area.Top > args.Player.TileY)
-					{
-						num = tRegion.Area.Top - args.Player.TileY;
-						message += " Borders are " + (tRegion.Area.Top - args.Player.TileY) + (num == 1 ? " tile" : " tiles") + " below you";
-					}
-					else
-					{
-						num = args.Player.TileY - tRegion.Area.Top;
-						num2 = tRegion.Area.Bottom - args.Player.TileY;
-						message += " Borders are " + (args.Player.TileY - tRegion.Area.Top) + (num == 1 ? " tile" : " tiles") + " above, " +
-							(tRegion.Area.Bottom - args.Player.TileY) + (num2 == 1 ? " tile" : " tiles") + " below you";
-					}
-					if (tRegion.Area.Right < args.Player.TileX)
-					{
-						num = args.Player.TileX - tRegion.Area.Right;
-						message += ", " + (args.Player.TileX - tRegion.Area.Right) + (num == 1 ? " tile" : " tiles") + " west of you.";
-					}
-					else if (tRegion.Area.Left > args.Player.TileX)
-					{
-						num = tRegion.Area.Left - args.Player.TileX;
-						message += ", " + (tRegion.Area.Left - args.Player.TileX) + (num == 1 ? " tile" : " tiles") + " east of you.";
-					}
-					else
-					{
-						num = args.Player.TileX - tRegion.Area.Left;
-						num2 = tRegion.Area.Right - args.Player.TileX;
-						message += ", " + (args.Player.TileX - tRegion.Area.Left) + (num == 1 ? " tile" : " tiles") + " west, " +
-							(tRegion.Area.Right - args.Player.TileX) + (num2 == 1 ? " tile" : " tiles") + " east of you.";
-					}
-				}
-				args.Player.SendMessage(message, TextColors[region.Color - 13]);
+                var message = "您现在正在查看 " + region.Name + " 区域。";
+                // 如果区域很大，显示区域的大小。
+                if (tRegion.Area.Width >= Region.MaximumSize || tRegion.Area.Height >= Region.MaximumSize)
+                {
+                    int num; int num2;
+                    if (tRegion.Area.Bottom < args.Player.TileY)
+                    {
+                        num = args.Player.TileY - tRegion.Area.Bottom;
+                        message += " 边界位于您上方 " + num + (num == 1 ? " 个图块" : " 个图块");
+                    }
+                    else if (tRegion.Area.Top > args.Player.TileY)
+                    {
+                        num = tRegion.Area.Top - args.Player.TileY;
+                        message += " 边界位于您下方 " + (tRegion.Area.Top - args.Player.TileY) + (num == 1 ? " 个图块" : " 个图块");
+                    }
+                    else
+                    {
+                        num = args.Player.TileY - tRegion.Area.Top;
+                        num2 = tRegion.Area.Bottom - args.Player.TileY;
+                        message += " 边界位于您上方 " + (args.Player.TileY - tRegion.Area.Top) + (num == 1 ? " 个图块" : " 个图块") +
+                            "，下方 " + (tRegion.Area.Bottom - args.Player.TileY) + (num2 == 1 ? " 个图块" : " 个图块");
+                    }
+                    if (tRegion.Area.Right < args.Player.TileX)
+                    {
+                        num = args.Player.TileX - tRegion.Area.Right;
+                        message += "，位于您右侧 " + (args.Player.TileX - tRegion.Area.Right) + (num == 1 ? " 个图块。" : " 个图块。");
+                    }
+                    else if (tRegion.Area.Left > args.Player.TileX)
+                    {
+                        num = tRegion.Area.Left - args.Player.TileX;
+                        message += "，位于您左侧 " + (tRegion.Area.Left - args.Player.TileX) + (num == 1 ? " 个图块。" : " 个图块。");
+                    }
+                    else
+                    {
+                        num = args.Player.TileX - tRegion.Area.Left;
+                        num2 = tRegion.Area.Right - args.Player.TileX;
+                        message += "，位于您右侧 " + (args.Player.TileX - tRegion.Area.Left) + (num == 1 ? " 个图块" : " 个图块") +
+                            "，左侧 " + (tRegion.Area.Right - args.Player.TileX) + (num2 == 1 ? " 个图块。" : " 个图块。");
+                    }
+                }
+                args.Player.SendMessage(message, TextColors[region.Color - 13]);
 
 				_refreshTimer.Interval = 7000;
 				_refreshTimer.Enabled = true;
@@ -295,21 +295,21 @@ namespace RegionView
 				if (player == null) 
 					return;
 
-				if (player.IsViewingNearby)
-				{
-					player.IsViewingNearby = false;
-					args.Player.SendInfoMessage("You are no longer viewing regions near you.");
-				}
-				else
-				{
-					player.IsViewingNearby = true;
-					args.Player.SendInfoMessage("You are now viewing regions near you.");
+                if (player.IsViewingNearby)
+                {
+                    player.IsViewingNearby = false;
+                    args.Player.SendInfoMessage("您不再查看您附近的区域。");
+                }
+                else
+                {
+                    player.IsViewingNearby = true;
+                    args.Player.SendInfoMessage("您现在正在查看您附近的区域。");
 
-					_refreshTimer.Interval = 1500;
-					_refreshTimer.Enabled = true;
-				}
-			}
-		}
+                    _refreshTimer.Interval = 1500;
+                    _refreshTimer.Enabled = true;
+                }
+            }
+        }
 
 		public static void ClearRegions(RegionPlayer player)
 		{
@@ -470,7 +470,7 @@ namespace RegionView
 										var region = new Region(tRegion.Name, tRegion.Area, false);
 										region.CalculateArea(player.TSPlayer);
 										player.Regions.Add(region);
-										player.TSPlayer.SendMessage("You see region " + region.Name + ".", TextColors[region.Color - 13]);
+										player.TSPlayer.SendMessage("你正在看区域 " + region.Name + ".", TextColors[region.Color - 13]);
 									}
 								}
 							}

@@ -81,10 +81,10 @@ namespace RegionView
 		{
 			int d; var index = 0;
 
-			if (RealTiles != null) throw new InvalidOperationException("Fake tiles have already been set for the region.");
+            if (RealTiles != null) throw new InvalidOperationException("该区域已设置虚拟图块。");
 
-			// Initialise the temporary tile array.
-			if (ShowArea.Width == 0)
+            // Initialise the temporary tile array.
+            if (ShowArea.Width == 0)
 				RealTiles = new Tile[ShowArea.Height + 1];
 			else if (ShowArea.Height == 0)
 				RealTiles = new Tile[ShowArea.Width + 1];
@@ -116,10 +116,10 @@ namespace RegionView
 			int d; var index = 0;
 
 			if (RealTiles == null)
-				throw new InvalidOperationException("Fake tiles have not been set for the region.");
+                throw new InvalidOperationException("区域未设置虚拟图块。");
 
-			// Top boundary
-			if (ShowArea.Top == Area.Top)
+            // Top boundary
+            if (ShowArea.Top == Area.Top)
 				for (d = 0; d <= ShowArea.Width; d++) 
 					UnsetFakeTile(index++, ShowArea.Left + d, ShowArea.Top);
 			// East boundary
@@ -147,10 +147,10 @@ namespace RegionView
 			if (x < 0 || y < 0 || x >= Main.maxTilesX || y >= Main.maxTilesY) 
 				return;
 
-			if (RealTiles == null) 
-				throw new InvalidOperationException("Fake tiles have not been set for the region.");
+			if (RealTiles == null)
+                throw new InvalidOperationException("区域尚未设置虚拟图块。");
 
-			ITile fakeTile;
+            ITile fakeTile;
 			if (Main.tile[x, y] == null)
 			{
 				fakeTile = new Tile();
@@ -185,10 +185,10 @@ namespace RegionView
 
 		public void UnsetFakeTile(int index, int x, int y)
 		{
-			if (RealTiles == null) 
-				throw new InvalidOperationException("Fake tiles have not been set for the region.");
+			if (RealTiles == null)
+                throw new InvalidOperationException("区域尚未设置虚拟图块。");
 
-			if (x < 0 || y < 0 || x >= Main.maxTilesX || y >= Main.maxTilesY) 
+            if (x < 0 || y < 0 || x >= Main.maxTilesX || y >= Main.maxTilesY) 
 				return;
 
 			Main.tile[x, y] = RealTiles[index];
